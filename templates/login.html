@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - FTMGRAM</title>
+</head>
+<body>
+    <h1>Login to FTMGRAM</h1>
+    <form action="{{ url_for('login') }}" method="post">
+        <input type="text" name="username" placeholder="Username" required><br>
+        <input type="password" name="password" placeholder="Password" required><br>
+        <input type="submit" value="Login">
+    </form>
+    <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+</html>
