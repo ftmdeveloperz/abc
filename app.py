@@ -1,40 +1,50 @@
-from flask import Flask, request, redirect, url_for, render_template, flash
+from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_mail import Mail, Message
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired
-import os
+import random
+import string
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'  # Replace with your actual secret key
+app.secret_key = 'your_secret_key_here'
+
+# Configure Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USERNAME'] = 'funtoonsmultimedia@gmail.com'
-app.config['MAIL_PASSWORD'] = 'ftm@2024'  # Directly use your password here
+app.config['MAIL_PASSWORD'] = 'ftm@2023'
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 
 mail = Mail(app)
+
+# Set up Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-s = URLSafeTimedSerializer('your_secret_key')  # Replace with your actual secret key
-
-# Define your User class
+# Dummy user class for demonstration
 class User(UserMixin):
-    # User model logic goes here
-    pass
+    def __init__(self, id):
+        self.id = id
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+def generate_otp():
+    return ''.join(random.choices(string.digits, k=6))
+
+def send_otp_via_email(email, otp_code):
+    msg = Message('Your OTP Code', sender='your_email@gmail.com', recipients=[email])
+    msg.body = f'Your OTP code is {otp_code}'
+    mail.send(msg)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         email = request.form['email']
-        password = request.form['password']
-        hashed_password = generate_password_hash(password, method='sha256')
-        # Save user to database
-        otp_secret = 'your_otp_secret'
-        send_otp(email, otp_secret)
-        flash('A verification email has been sent!', 'info')
+        otp_code = generate_otp()
+        send_otp_via_email(email, otp_code)
+        flash('A verification code has been sent to your email!', 'info')
         return redirect(url_for('login'))
     return render_template('register.html')
 
@@ -42,52 +52,22 @@ def register():
 def login():
     if request.method == 'POST':
         email = request.form['email']
-        password = request.form['password']
-        # Verify user credentials
+        otp_code = request.form['otp_code']
+        # Here you should validate the OTP code
+        login_user(User(email))
         return redirect(url_for('profile'))
     return render_template('login.html')
-
-@app.route('/post', methods=['POST'])
-@login_required
-def post():
-    content = request.form['content']
-    # Save post to database
-    flash('Post created!', 'success')
-    return redirect(url_for('profile'))
 
 @app.route('/profile')
 @login_required
 def profile():
-    # Fetch user posts and data
-    return render_template('profile.html')
+    return f'Hello, {current_user.id}!'
 
-@app.route('/send-test-email')
-def send_test_email():
-    msg = Message('Test Email', sender='funtoonsmultimedia@gmail.com', recipients=['recipient@example.com'])
-    msg.body = 'This is a test email sent from Flask.'
-    try:
-        mail.send(msg)
-        return 'Email sent successfully!'
-    except Exception as e:
-        return f'Error: {str(e)}'
-
-def send_otp(email, otp_secret):
-    token = s.dumps(email, salt='email-confirm')
-    msg = Message('Your OTP Code', sender='funtoonsmultimedia@gmail.com', recipients=[email])
-    msg.body = f'Your OTP code is {otp_secret}'
-    try:
-        mail.send(msg)
-    except Exception as e:
-        print(f'Error sending OTP: {str(e)}')
-
-@app.route('/confirm/<token>')
-def confirm_email(token):
-    try:
-        email = s.loads(token, salt='email-confirm', max_age=3600)
-    except SignatureExpired:
-        return 'The token has expired!'
-    # Confirm user email
-    return 'Email confirmed!'
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080)  # Change port to 8080
