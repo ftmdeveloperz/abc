@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify OTP - FTMGRAM</title>
+</head>
+<body>
+    <h1>Verify OTP</h1>
+    <form action="{{ url_for('verify_otp') }}" method="post">
+        <input type="text" name="otp" placeholder="Enter OTP" required><br>
+        <input type="submit" value="Verify OTP">
+    </form>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+</html>
