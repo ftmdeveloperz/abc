@@ -13,7 +13,7 @@ app.config['MAIL_PORT'] = 587  # or 465 for SSL
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = 'funtoonsmultimedia@gmail.com'
-app.config['MAIL_PASSWORD'] = '6206213510'
+app.config['MAIL_PASSWORD'] = '9852226253'
 mail = Mail(app)
 
 login_manager = LoginManager()
