@@ -10,7 +10,7 @@ app.config['SECRET_KEY'] = 'your_secret_key'  # Replace with your actual secret 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USERNAME'] = 'funtoonsmultimedia@gmail.com'
-app.config['MAIL_PASSWORD'] = '9852226253'  # Directly use your password here
+app.config['MAIL_PASSWORD'] = 'ftm@2024'  # Directly use your password here
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 
