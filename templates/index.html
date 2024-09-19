@@ -1,21 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FTMGRAM</title>
 </head>
 <body>
     <h1>Welcome to FTMGRAM</h1>
-    <form action="/register" method="post">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <button type="submit">Send OTP</button>
+    {% if user.is_authenticated %}
+        <p>Hello, {{ user.id }}! <a href="{{ url_for('logout') }}">Logout</a></p>
+        <h2>Posts:</h2>
+        <ul>
+            {% for post in posts %}
+                <li>
+                    {{ post.content }} by {{ post.author }}
+                    <a href="{{ url_for('like', post_id=post.id) }}">
+                        {% if user.id in post.likes %}
+                            Unlike ({{ post.likes|length }})
+                        {% else %}
+                            Like ({{ post.likes|length }})
+                        {% endif %}
+                    </a>
+                    <form action="{{ url_for('comment', post_id=post.id) }}" method="post">
+                        <input type="text" name="comment" placeholder="Add a comment" required>
+                        <input type="submit" value="Comment">
+                    </form>
+                    <ul>
+                        {% for comment in post.comments %}
+                            <li>{{ comment.author }}: {{ comment.content }}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+        <h2>Post Something:</h2>
+        <form action="{{ url_for('post') }}" method="post">
+            <textarea name="content" rows="4" cols="50"></textarea><br>
+            <input type="submit" value="Post">
+        </form>
+        <h2>Follow/Unfollow:</h2>
+        <form action="{{ url_for('follow', username='someuser') }}" method="post">
+            <input type="text" name="username" placeholder="Username to follow">
+            <input type="submit" value="Follow">
+        </form>
+        <form action="{{ url_for('unfollow', username='someuser') }}" method="post">
+            <input type="text" name="username" placeholder="Username to unfollow">
+            <input type="submit" value="Unfollow">
+        </form>
+    {% else %}
+        <p>You need to <a href="{{ url_for('login') }}">log in</a> to see posts and interact.</p>
+    {% endif %}
+    <h2>Register:</h2>
+    <form action="{{ url_for('register') }}" method="post">
+        <input type="text" name="username" placeholder="Username" required><br>
+        <input type="password" name="password" placeholder="Password" required><br>
+        <input type="email" name="email" placeholder="Email" required><br>
+        <input type="submit" value="Register">
     </form>
-    <form action="/verify" method="post">
-        <label for="code">OTP Code:</label>
-        <input type="text" id="code" name="code" required>
-        <button type="submit">Verify OTP</button>
-    </form>
+    <p>Already registered? <a href="{{ url_for('login') }}">Log in here</a></p>
 </body>
 </html>
